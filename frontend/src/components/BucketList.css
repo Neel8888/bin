@@ -1,0 +1,11 @@
+.bucket-list-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #eeecec;
+    /* background-color: #242424; */
+    align-items: center;
+    align-content: center;
+}
