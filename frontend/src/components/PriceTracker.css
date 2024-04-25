@@ -1,0 +1,31 @@
+.price-tracker-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #eeecec;
+    /* background-color: #242424; */
+    align-items: center;
+    align-content: center;
+}
+
+/* PriceTracker.css */
+.track-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 2px 1px;
+    cursor: pointer;
+    border-radius: 5px;
+    
+}
+
+.track-button:hover {
+    background-color: #45a049;
+}

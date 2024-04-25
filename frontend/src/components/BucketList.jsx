@@ -80,10 +80,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './BucketList.css';
-
+import { FaEdit } from "react-icons/fa";
+import { RiDeleteBin6Fill } from "react-icons/ri";
 function BucketList({setUrl}) {
     const [bucketList, setBucketList] = useState([]);
     const [urlToAdd, setUrlToAdd] = useState('');
+    const [urlId, setUrlId] = useState('');
     const [shortNameToAdd, setShortNameToAdd] = useState('');
     const [error, setError] = useState(null);
     const [editIndex, setEditIndex] = useState(null);
@@ -126,9 +128,10 @@ function BucketList({setUrl}) {
             try {
                 if (editIndex !== null) {
                     // Modify existing item
-                    await axios.put(`http://localhost:5000/update_bucket_list/${bucketList[editIndex]._id}`, {
+                    await axios.put(`http://localhost:5000/update_bucket_list/${urlId}`, {
                         url: urlToAdd,
-                        shortName: shortNameToAdd
+                        shortName: shortNameToAdd,
+                        id: urlId
                     });
                     setEditIndex(null);
                 } else {
@@ -148,10 +151,11 @@ function BucketList({setUrl}) {
             }
         }
     };
+    
 
-    const deleteFromBucketList = async (id) => {
+    const deleteFromBucketList = async (shortName) => {
         try {
-            await axios.delete(`http://localhost:5000/delete_from_bucket_list/${id}`);
+            await axios.delete(`http://localhost:5000/delete_from_bucket_list/${shortName}`);
             // Refresh bucket list after deleting item
             fetchBucketList();
         } catch (error) {
@@ -159,14 +163,15 @@ function BucketList({setUrl}) {
         }
     };
 
-    const editBucketListItem = (index) => {
-        setUrlToAdd(bucketList[index].url);
-        setShortNameToAdd(bucketList[index].shortName);
-        setEditIndex(index);
+    const editBucketListItem = (item) => {
+        setUrlToAdd(item.url);
+        setShortNameToAdd(item.shortName);
+        setUrlId(item._id); // Use the _id field as the identifier
+        // setEditIndex(index);
     };
 
     const copyToClipboard = (url) => {
-        const setUrl = navigator.clipboard.writeText(url);
+        navigator.clipboard.writeText(url);
         // const copiedUrl= navigator.clipboard.writeText(url);
         // setLink(copiedUrl);
     };
@@ -188,7 +193,7 @@ function BucketList({setUrl}) {
     const handleSetUrl = (newUrl) => {
         setUrl(newUrl);
     };
-
+    
 
     return (
         <div className="bucket-list-container">
@@ -199,8 +204,8 @@ function BucketList({setUrl}) {
                     <div key={index} className="bucket-list-item">
                         <button onClick={() => {copyToClipboard(item.url); handleSetUrl(item.url);}}>{item.shortName}</button>
                         {/* {item.showUrl && <span>{item.url}</span>} */}
-                        <button onClick={() => editBucketListItem(index)}>Edit</button>
-                        <button onClick={() => deleteFromBucketList(item._id)}>Delete</button>
+                        <button style={{border:'none' , cursor:'pointer'}} onClick={() => editBucketListItem(item)}><FaEdit /></button>
+                        <button style={{border:'none',cursor:'pointer'}} onClick={() => deleteFromBucketList(item.shortName)}><RiDeleteBin6Fill /></button>
                     </div>
                 ))}
             </div>

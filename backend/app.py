@@ -9,7 +9,7 @@ from pymongo.server_api import ServerApi
 from datetime import datetime
 from bson import ObjectId
 from flask_cors import CORS
-
+# Mar#2003!@00
 app = Flask(__name__)
 CORS(app)
 logger = logging.getLogger(__name__)
@@ -26,7 +26,6 @@ db = client['ProductDatabase']  # Replace 'your_database_name_here' with your ac
 
 # Accessing the collection
 products_collection = db['ProductDetails']
-
 
 
 @app.route('/scrape', methods=['GET'])
@@ -117,19 +116,19 @@ def scrape_product():
         return jsonify({'error': 'Internal server error'}), 500
 
 
-
 bucket_list_collection = db["BucketList"]  # Your collection name
-
 
 @app.route('/add_to_bucket_list', methods=['POST'])
 def add_to_bucket_list():
     try:
         data = request.get_json()
+        print(data)
+    
         if data:
             bucket_item = {
                 "url": data.get("url"),
                 "shortName": data.get("shortName"),
-                "showUrl": False  # Initially set to False
+                # "showUrl": False  # Initially set to False
             }
             # Inserting the bucket item into the collection
             result = bucket_list_collection.insert_one(bucket_item)
@@ -152,18 +151,17 @@ def get_bucket_list():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/update_bucket_list/<string:item_id>', methods=['PUT'])
-def update_bucket_list(item_id):
+@app.route('/update_bucket_list/<string:_id>', methods=['PUT'])
+def update_bucket_list(_id):
     try:
         data = request.get_json()
         if data:
             updated_item = {
                 "url": data.get("url"),
                 "shortName": data.get("shortName"),
-                "showUrl": False  # Initially set to False
             }
-            # Updating the bucket item
-            result = bucket_list_collection.update_one({"_id": ObjectId(item_id)}, {"$set": updated_item})
+            # Updating the bucket item based on _id
+            result = bucket_list_collection.update_one({"_id": ObjectId(_id)}, {"$set": updated_item})
             if result.modified_count == 1:
                 return jsonify({"message": "Bucket item updated successfully"})
             else:
@@ -174,11 +172,11 @@ def update_bucket_list(item_id):
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/delete_from_bucket_list/<string:item_id>', methods=['DELETE'])
-def delete_from_bucket_list(item_id):
+@app.route('/delete_from_bucket_list/<string:shortName>', methods=['DELETE'])
+def delete_from_bucket_list(shortName):
     try:
         # Deleting the bucket item
-        result = bucket_list_collection.delete_one({"_id": ObjectId(item_id)})
+        result = bucket_list_collection.delete_one({"shortName": shortName})
         if result.deleted_count == 1:
             return jsonify({"message": "Bucket item deleted successfully"})
         else:
@@ -186,6 +184,38 @@ def delete_from_bucket_list(item_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@app.route('/price-history', methods=['GET'])
+def get_price_history():
+    try:
+        url = request.args.get('url')
+        if not url:
+            return jsonify({'error': 'URL parameter is missing'}), 400
+
+        # Query the database for price history of the given URL
+        price_history = list(products_collection.find({"url": url}, {"_id": 0, "current_price": 1, "timestamp": 1}))
+
+        return jsonify(price_history)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/configure-email', methods=['POST'])
+def configure_email():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        url = data.get('url')
+
+        # Update or insert the email address into the ProductDetails collection
+        products_collection.update_one(
+            {'url': url},
+            {'$set': {'email': email}},
+            upsert=True
+        )
+
+        return jsonify({'message': 'Email configuration successful'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
