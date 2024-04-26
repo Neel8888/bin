@@ -17,7 +17,7 @@ function App() {
       <h1>Amazon Product Tracker</h1>
       <ProductTracker url={url} setUrl={handleSetUrl} />
       <BucketList setUrl={handleSetUrl} />
-      {url && <PriceTracker url={url} />}
+      {url && <PriceTracker url={url}/>}
     </div>
   );
 }

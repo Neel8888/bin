@@ -2,23 +2,21 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 
-function EmailConfig({ onClose }) {
+function EmailConfig({ onClose ,url}) {
     const [email, setEmail] = useState('');
     // eslint-disable-next-line
     const [loading, setLoading] = useState(false);
     // eslint-disable-next-line
     const [error, setError] = useState(false);
-
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
     };
-
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
         try {
             // Send email configuration data to backend
-            const response = await axios.post('http://localhost:5000/configure-email', { email });
+            const response = await axios.post('http://localhost:5000/configure-email', { url,email });
             console.log('Email configuration successful:', response.data);
             onClose(); // Close the EmailConfig component
         } catch (error) {
